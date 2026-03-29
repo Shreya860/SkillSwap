@@ -6,141 +6,175 @@
     <title>Profile - SkillSwap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="gradient-theme.css">
+    <style>
+        body { background: #0D0D0D; }
+        .profile-hero {
+            height: 180px;
+            background: linear-gradient(135deg, #1A1A1A 0%, #2a1208 60%, #1A1A1A 100%);
+            position: relative;
+            border-bottom: 1px solid rgba(232,70,10,0.2);
+        }
+        .profile-hero::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(232,70,10,0.12), transparent);
+        }
+        .profile-card {
+            background: #151515;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 1.25rem;
+        }
+        .skill-pill-teach {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(232,70,10,0.1); color: #FF6B35;
+            border: 1px solid rgba(232,70,10,0.25);
+            padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500;
+        }
+        .skill-pill-learn {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.05); color: #888580;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500;
+        }
+        .info-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .info-row:last-child { border-bottom: none; }
+        .info-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(232,70,10,0.1); border: 1px solid rgba(232,70,10,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .orange-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(232,70,10,0.3), transparent); margin: 0; }
+    </style>
 </head>
-<body class="gradient-bg animate-gradient-flow min-h-screen font-sans pb-20">
+<body class="gradient-bg min-h-screen font-sans">
 
     <!-- Navbar -->
-    <nav class="bg-glass sticky top-0 z-50 border-b border-white/10">
+    <nav class="bg-glass sticky top-0 z-50" style="border-bottom:1px solid rgba(255,255,255,0.07);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex-shrink-0 flex items-center gap-8">
-                    <a href="splash.html" class="text-xl font-bold text-white font-bluesakura">
-                        SKiLlSWaP
-                    </a>
-                    <div class="hidden sm:flex space-x-4">
-                        <a href="discover.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium">
-                            Discover
-                        </a>
-                       <a href="index.html#features" class="nav-link px-3 py-2 rounded-md text-sm font-medium">
-                            Features
-                        </a>
-                        <a href="index.html#about" class="nav-link px-3 py-2 rounded-md text-sm font-medium">
-                            About
-                        </a>
+                    <a href="splash.html" class="font-bluesakura text-xl" style="color:#F5F0E8;">SKiLlSWaP</a>
+                    <div class="hidden sm:flex space-x-1">
+                        <a href="discover.html" class="nav-link">Discover</a>
+                        <a href="index.html#features" class="nav-link">Features</a>
+                        <a href="index.html#about" class="nav-link">About</a>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="login.html" class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Log in
-                    </a>
-                    <a href="signup.html" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium">
-                        Sign up
-                    </a>
+                <div class="flex items-center gap-3">
+                    <a href="login.html"  class="nav-link">Log in</a>
+                    <a href="signup.html" class="gradient-button px-4 py-2 rounded-lg text-sm font-medium text-white">Sign up</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div id="loading" class="min-h-screen flex items-center justify-center bg-gray-50">
-        <p class="text-gray-500">Loading profile...</p>
-    </div>
-
-    <div id="error-container" class="hidden min-h-screen flex items-center justify-center bg-gray-50">
+    <!-- Loading -->
+    <div id="loading" class="min-h-[80vh] flex items-center justify-center">
         <div class="text-center">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">
-                User not found
-            </h1>
-            <a href="discover.html" class="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors">
-                Back to Discovery
-            </a>
+            <div class="w-10 h-10 rounded-full border-2 border-t-transparent mx-auto mb-3 animate-spin" style="border-color:#E8460A;border-top-color:transparent;"></div>
+            <p class="text-sm" style="color:#888580;">Loading profile...</p>
         </div>
     </div>
 
-    <div id="profile-container" class="hidden min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto">
-            <a href="discover.html" class="inline-flex items-center text-gray-600 hover:text-gray-900 mb-8 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Discovery
+    <!-- Error -->
+    <div id="error-container" class="hidden min-h-[80vh] flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background:rgba(232,70,10,0.1);border:1px solid rgba(232,70,10,0.2);">
+                <svg class="w-8 h-8" style="color:#E8460A;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <h1 class="text-xl font-bold mb-2" style="font-family:'Syne',sans-serif;color:#F5F0E8;">User not found</h1>
+            <a href="discover.html" class="text-sm" style="color:#E8460A;">← Back to Discover</a>
+        </div>
+    </div>
+
+    <!-- Profile -->
+    <div id="profile-container" class="hidden pb-16">
+        <div class="max-w-3xl mx-auto px-4 py-8">
+
+            <!-- Back -->
+            <a href="discover.html" class="inline-flex items-center gap-2 text-sm mb-6 transition-colors" style="color:#888580;" onmouseover="this.style.color='#E8460A'" onmouseout="this.style.color='#888580'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back to Discover
             </a>
 
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Header -->
-                <div class="h-48 bg-gradient-to-r from-blue-600 to-purple-700 relative">
-                    <div class="absolute -bottom-16 left-8">
-                        <div class="rounded-full border-4 border-white overflow-hidden bg-white shadow-md w-32 h-32">
+            <!-- Hero -->
+            <div class="profile-hero rounded-t-2xl overflow-hidden">
+                <div class="absolute bottom-0 left-6 translate-y-1/2 z-10" style="position:relative;margin-left:24px;margin-top:110px;">
+                </div>
+            </div>
+
+            <!-- Profile header card -->
+            <div style="background:#151515;border:1px solid rgba(255,255,255,0.07);border-top:none;border-radius:0 0 20px 20px;padding:0 24px 24px;">
+                <!-- Avatar row -->
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4" style="padding-top:16px;">
+                    <div class="flex items-end gap-4">
+                        <div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0" style="border:3px solid #E8460A;margin-top:-48px;background:#1A1A1A;">
                             <img id="user-avatar" src="" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <div class="pb-1">
+                            <h1 id="user-name" class="text-2xl font-bold" style="font-family:'Syne',sans-serif;color:#F5F0E8;"></h1>
+                            <p id="user-role" class="text-sm" style="color:#888580;"></p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pb-1">
+                        <button class="gradient-button px-5 py-2 rounded-xl text-white text-sm font-semibold">Request Swap</button>
+                        <button class="gradient-button-outline px-5 py-2 rounded-xl text-sm font-semibold">Message</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
+
+                <!-- Main col -->
+                <div class="lg:col-span-2 flex flex-col gap-5">
+
+                    <!-- About -->
+                    <div class="profile-card">
+                        <h2 class="text-base font-bold mb-3" style="font-family:'Syne',sans-serif;color:#F5F0E8;">About Me</h2>
+                        <p id="user-bio" class="text-sm leading-relaxed" style="color:#888580;"></p>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="profile-card">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:#F5F0E8;">
+                                    <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs" style="background:rgba(232,70,10,0.15);">🎓</span>
+                                    I Can Teach
+                                </h3>
+                                <div id="user-teaching" class="flex flex-wrap gap-2"></div>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:#F5F0E8;">
+                                    <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs" style="background:rgba(255,255,255,0.07);">📚</span>
+                                    I Want to Learn
+                                </h3>
+                                <div id="user-learning" class="flex flex-wrap gap-2"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-glass rounded-2xl shadow-xl overflow-hidden border border-white/20 backdrop-blur-md">
-                    <div class="h-48 profile-header-gradient relative">
-                        <div>
-                            <h1 id="user-name" class="text-3xl font-bold gradient-text-white"></h1>
-                            <p id="user-role" class="text-lg text-gray-600"></p>
-                        </div>
+                <!-- Sidebar -->
+                <div class="flex flex-col gap-5">
 
-                        <div class="mt-4 md:mt-0 flex gap-3">
-                            <button class="px-6 py-2 gradient-button text-white rounded-lg font-semibold hover:shadow-lg">
-                                Request Swap
-                            </button>
-                            <button class="px-6 py-2 gradient-button-outline text-white rounded-lg">
-                                Message
-                            </button>
+                    <!-- Rating -->
+                    <div class="profile-card text-center">
+                        <p class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#888580;">Community Rating</p>
+                        <div class="text-5xl font-bold mb-1" id="user-rating" style="font-family:'Syne',sans-serif;color:#E8460A;"></div>
+                        <div class="text-lg mb-1" style="color:#E8460A;">★★★★★</div>
+                        <p class="text-xs" id="user-reviews" style="color:#888580;"></p>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="profile-card">
+                        <p class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#888580;">Availability</p>
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <svg class="w-4 h-4" style="color:#E8460A;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <span id="user-availability" class="text-sm" style="color:#F5F0E8;"></span>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Main -->
-                        <div class="md:col-span-2 space-y-8">
-                            <section>
-                                <h2 class="text-xl font-bold text-gray-900 mb-3">
-                                    About Me
-                                </h2>
-                                <p id="user-bio" class="text-gray-600"></p>
-                            </section>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <section>
-                                    <h3 class="text-lg font-semibold text-green-700 mb-3">
-                                        🎓 I Can Teach
-                                    </h3>
-                                    <ul id="user-teaching" class="space-y-2"></ul>
-                                </section>
-
-                                <section>
-                                    <h3 class="text-lg font-semibold text-blue-700 mb-3">
-                                        📚 I Want to Learn
-                                    </h3>
-                                    <ul id="user-learning" class="space-y-2"></ul>
-                                </section>
-                            </div>
-                        </div>
-
-                        <!-- Sidebar -->
-                        <div class="space-y-6">
-                           <div class="bg-white/5 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
-                                <h3 class="font-semibold text-gray-900 mb-4">Availability</h3>
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span id="user-availability"></span>
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 p-6 rounded-xl border border-gray-100">
-                                <h3 class="font-semibold text-gray-900 mb-4">Community Rating</h3>
-                                <div class="flex items-center mb-2">
-                                    <span class="text-3xl font-bold text-gray-900" id="user-rating"></span>
-                                    <span class="ml-2 text-yellow-500 text-2xl">★</span>
-                                </div>
-                                <p class="text-sm text-gray-500" id="user-reviews"></p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -148,125 +182,47 @@
 
     <script>
         const mockUsers = [
-            {
-                id: 1,
-                name: "Alex Johnson",
-                role: "UX Designer",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-                teaching: ["Figma", "UI Design", "Wireframing"],
-                learning: ["React", "Node.js", "Python"],
-                bio: "Passionate UX designer with 5 years of experience looking to expand my technical skills.",
-                availability: "Weekends, Evenings EST",
-                rating: 4.8,
-                reviews: 12
-            },
-            {
-                id: 2,
-                name: "Sarah Chen",
-                role: "Frontend Developer",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-                teaching: ["React", "CSS", "JavaScript"],
-                learning: ["UI Design", "Digital Marketing"],
-                bio: "Frontend dev who loves creating beautiful interfaces. I want to learn how to design them better!",
-                availability: "Weekdays 6-9PM PST",
-                rating: 4.9,
-                reviews: 24
-            },
-            {
-                id: 3,
-                name: "Michael Brown",
-                role: "Guitarist",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
-                teaching: ["Guitar", "Music Theory"],
-                learning: ["Video Editing", "Social Media"],
-                bio: "Musician looking to create better content for my channel. Happy to teach guitar basics!",
-                availability: "Flexible",
-                rating: 4.7,
-                reviews: 8
-            },
-            {
-                id: 4,
-                name: "Emily Davis",
-                role: "Digital Marketer",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
-                teaching: ["SEO", "Content Strategy"],
-                learning: ["Spanish", "Web Development"],
-                bio: "Marketing pro wanting to learn Spanish for my upcoming trip.",
-                availability: "Weekends",
-                rating: 5.0,
-                reviews: 15
-            },
-            {
-                id: 5,
-                name: "David Wilson",
-                role: "Data Scientist",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
-                teaching: ["Python", "Data Analysis", "SQL"],
-                learning: ["Public Speaking", "Creative Writing"],
-                bio: "Data nerd trying to improve my soft skills.",
-                availability: "Sunday Mornings",
-                rating: 4.6,
-                reviews: 10
-            },
-            {
-                id: 6,
-                name: "Jessica Taylor",
-                role: "Native Spanish Speaker",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica",
-                teaching: ["Spanish", "Cooking"],
-                learning: ["English", "Excel"],
-                bio: "Hola! I can help you with Spanish conversation in exchange for Excel tips.",
-                availability: "Mon-Wed Evenings",
-                rating: 4.9,
-                reviews: 30
-            }
+            { id:1, name:"Alex Johnson",   role:"UX Designer",           avatar:"https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",    teaching:["Figma","UI Design","Wireframing"],       learning:["React","Node.js","Python"],          bio:"Passionate UX designer with 5 years of experience looking to expand my technical skills.",     availability:"Weekends, Evenings EST", rating:4.8, reviews:12 },
+            { id:2, name:"Sarah Chen",     role:"Frontend Developer",    avatar:"https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",   teaching:["React","CSS","JavaScript"],             learning:["UI Design","Digital Marketing"],     bio:"Frontend dev who loves creating beautiful interfaces. I want to learn how to design them better!", availability:"Weekdays 6-9PM PST",    rating:4.9, reviews:24 },
+            { id:3, name:"Michael Brown",  role:"Guitarist",             avatar:"https://api.dicebear.com/7.x/avataaars/svg?seed=Michael", teaching:["Guitar","Music Theory"],                learning:["Video Editing","Social Media"],       bio:"Musician looking to create better content for my channel. Happy to teach guitar basics!",      availability:"Flexible",              rating:4.7, reviews:8  },
+            { id:4, name:"Emily Davis",    role:"Digital Marketer",      avatar:"https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",   teaching:["SEO","Content Strategy"],               learning:["Spanish","Web Development"],         bio:"Marketing pro wanting to learn Spanish for my upcoming trip.",                                  availability:"Weekends",              rating:5.0, reviews:15 },
+            { id:5, name:"David Wilson",   role:"Data Scientist",        avatar:"https://api.dicebear.com/7.x/avataaars/svg?seed=David",   teaching:["Python","Data Analysis","SQL"],          learning:["Public Speaking","Creative Writing"], bio:"Data nerd trying to improve my soft skills.",                                                  availability:"Sunday Mornings",       rating:4.6, reviews:10 },
+            { id:6, name:"Jessica Taylor", role:"Native Spanish Speaker",avatar:"https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica", teaching:["Spanish","Cooking"],                    learning:["English","Excel"],                   bio:"Hola! I can help you with Spanish conversation in exchange for Excel tips.",                    availability:"Mon-Wed Evenings",      rating:4.9, reviews:30 }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
+            const id = new URLSearchParams(window.location.search).get('id');
             const user = mockUsers.find(u => u.id === Number(id));
-
             document.getElementById('loading').classList.add('hidden');
 
-            if (!user) {
-                document.getElementById('error-container').classList.remove('hidden');
-            } else {
-                document.getElementById('profile-container').classList.remove('hidden');
-                
-                document.getElementById('user-avatar').src = user.avatar;
-                document.getElementById('user-avatar').alt = user.name;
-                document.getElementById('user-name').textContent = user.name;
-                document.getElementById('user-role').textContent = user.role;
-                document.getElementById('user-bio').textContent = user.bio;
-                document.getElementById('user-availability').textContent = user.availability;
-                document.getElementById('user-rating').textContent = user.rating;
-                document.getElementById('user-reviews').textContent = `based on ${user.reviews} reviews`;
+            if (!user) { document.getElementById('error-container').classList.remove('hidden'); return; }
 
-                const teachingList = document.getElementById('user-teaching');
-                user.teaching.forEach(skill => {
-                    const li = document.createElement('li');
-                    li.className = "flex items-center text-gray-700 bg-green-50 px-3 py-2 rounded-lg";
-                    li.innerHTML = `
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                        ${skill}
-                    `;
-                    teachingList.appendChild(li);
-                });
+            document.getElementById('profile-container').classList.remove('hidden');
+            document.getElementById('user-avatar').src       = user.avatar;
+            document.getElementById('user-avatar').alt       = user.name;
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = user.role;
+            document.getElementById('user-bio').textContent  = user.bio;
+            document.getElementById('user-availability').textContent = user.availability;
+            document.getElementById('user-rating').textContent       = user.rating;
+            document.getElementById('user-reviews').textContent      = `Based on ${user.reviews} reviews`;
 
-                const learningList = document.getElementById('user-learning');
-                user.learning.forEach(skill => {
-                    const li = document.createElement('li');
-                    li.className = "flex items-center text-gray-700 bg-blue-50 px-3 py-2 rounded-lg";
-                    li.innerHTML = `
-                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                        ${skill}
-                    `;
-                    learningList.appendChild(li);
-                });
-            }
+            const tList = document.getElementById('user-teaching');
+            user.teaching.forEach(s => {
+                const el = document.createElement('span');
+                el.className = 'skill-pill-teach';
+                el.textContent = s;
+                tList.appendChild(el);
+            });
+
+            const lList = document.getElementById('user-learning');
+            user.learning.forEach(s => {
+                const el = document.createElement('span');
+                el.className = 'skill-pill-learn';
+                el.textContent = s;
+                lList.appendChild(el);
+            });
         });
     </script>
-
 </body>
 </html>
