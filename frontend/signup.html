@@ -6,6 +6,8 @@
     <title>Sign Up - SkillSwap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="gradient-theme.css">
+    <script src="auth.js"></script>
+    <script src="crypto.js"></script>
     <style>
         body { background: #0D0D0D; }
         .auth-card {
@@ -32,11 +34,19 @@
         }
         .form-input::placeholder { color: #555; }
         .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+        #serverError {
+            display: none;
+            background: rgba(232,70,10,0.1);
+            border: 1px solid rgba(232,70,10,0.3);
+            color: #FF6B35;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen font-sans">
 
-    <!-- Orbs -->
     <div class="orb" style="width:350px;height:350px;background:rgba(232,70,10,0.1);top:-60px;left:-60px;z-index:0;"></div>
     <div class="orb" style="width:250px;height:250px;background:rgba(232,70,10,0.07);bottom:-40px;right:-40px;z-index:0;"></div>
 
@@ -54,13 +64,12 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <a href="login.html"  class="nav-link">Log in</a>
-                    <a href="signup.html" class="gradient-button px-4 py-2 rounded-lg text-sm font-medium text-white nav-link-active">Sign up</a>
+                    <a href="signup.html" class="gradient-button px-4 py-2 rounded-lg text-sm font-medium text-white">Sign up</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Form -->
     <div class="relative z-10 flex items-center justify-center min-h-[calc(100vh-64px)] py-12 px-4">
         <div class="auth-card w-full max-w-md p-8 animate-fade-in-up">
 
@@ -73,6 +82,8 @@
                 <h2 class="text-2xl font-bold mb-1" style="font-family:'Syne',sans-serif;color:#F5F0E8;">Create Account</h2>
                 <p class="text-sm" style="color:#888580;">Join the community of learners and teachers</p>
             </div>
+
+            <div id="serverError" class="mb-4"></div>
 
             <form id="signupForm" class="space-y-4">
                 <div>
@@ -96,7 +107,7 @@
                     <p id="confirm-password-error" class="text-xs mt-1 hidden" style="color:#E8460A;"></p>
                 </div>
 
-                <button type="submit" class="gradient-button w-full py-3 rounded-xl text-white font-semibold text-sm mt-2">
+                <button type="submit" id="submitBtn" class="gradient-button w-full py-3 rounded-xl text-white font-semibold text-sm mt-2">
                     Create Account →
                 </button>
             </form>
@@ -111,29 +122,72 @@
     </div>
 
     <script>
+        if (Auth.getToken()) window.location.href = 'discover.html';
+
+        const setErr   = (id, msg) => { const el = document.getElementById(id); el.textContent = msg; el.classList.remove('hidden'); };
+        const clearErr = (id)      => document.getElementById(id).classList.add('hidden');
+
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email-address').value;
-            const password = document.getElementById('password').value;
+
+            const name            = document.getElementById('name').value.trim();
+            const email           = document.getElementById('email-address').value.trim();
+            const password        = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
-            let isValid = true;
+            const btn             = document.getElementById('submitBtn');
+            const errBanner       = document.getElementById('serverError');
+            let valid = true;
 
-            const setErr = (id, msg) => { document.getElementById(id).textContent = msg; document.getElementById(id).classList.remove('hidden'); };
-            const clearErr = (id) => document.getElementById(id).classList.add('hidden');
+            errBanner.style.display = 'none';
 
-            if (!name) { setErr('name-error','Name is required'); isValid=false; } else clearErr('name-error');
-            if (!email || !/\S+@\S+\.\S+/.test(email)) { setErr('email-error',!email?'Email is required':'Invalid email'); isValid=false; } else clearErr('email-error');
-            if (!password || password.length < 6) { setErr('password-error', !password?'Password is required':'Min. 6 characters'); isValid=false; } else clearErr('password-error');
-            if (password !== confirmPassword) { setErr('confirm-password-error','Passwords do not match'); isValid=false; } else clearErr('confirm-password-error');
+            if (!name)                                  { setErr('name-error','Name is required');              valid=false; } else clearErr('name-error');
+            if (!email || !/\S+@\S+\.\S+/.test(email)) { setErr('email-error', !email?'Email is required':'Invalid email'); valid=false; } else clearErr('email-error');
+            if (!password || password.length < 6)       { setErr('password-error', !password?'Password is required':'Min. 6 characters'); valid=false; } else clearErr('password-error');
+            if (password !== confirmPassword)            { setErr('confirm-password-error','Passwords do not match'); valid=false; } else clearErr('confirm-password-error');
 
-            if (isValid) {
+            if (!valid) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Creating account…';
+
+            try {
+                const res  = await fetch('/api/signup', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ name, email, password }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errBanner.textContent   = data.error || 'Signup failed';
+                    errBanner.style.display = 'block';
+                    return;
+                }
+
+                // Save auth state
+                Auth.save(data.token, data.user);
+
+                // Generate E2E key pair and upload public key
+                btn.textContent = 'Setting up encryption…';
                 try {
-                    const res = await fetch('/api/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name,email,password}) });
-                    const data = await res.json();
-                    if (res.ok) { alert('Signup successful! Please login.'); window.location.href='login.html'; }
-                    else alert(data.error||'Signup failed');
-                } catch { alert('An error occurred. Please try again.'); }
+                    const kp  = await SkillSwapCrypto.getOrCreateKeyPair();
+                    const jwk = await SkillSwapCrypto.exportPublicKey(kp);
+                    await Auth.apiFetch('/api/users/me/public-key', {
+                        method: 'POST',
+                        body:   JSON.stringify({ publicKey: jwk }),
+                    });
+                } catch (cryptoErr) {
+                    console.warn('Crypto setup failed (non-fatal):', cryptoErr);
+                }
+
+                window.location.href = 'discover.html';
+
+            } catch (err) {
+                errBanner.textContent   = 'Network error. Is the backend running?';
+                errBanner.style.display = 'block';
+            } finally {
+                btn.disabled    = false;
+                btn.textContent = 'Create Account →';
             }
         });
     </script>

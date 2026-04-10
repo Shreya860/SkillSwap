@@ -6,6 +6,8 @@
     <title>Login - SkillSwap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="gradient-theme.css">
+    <script src="auth.js"></script>
+    <script src="crypto.js"></script>
     <style>
         body { background: #0D0D0D; }
         .auth-card {
@@ -32,11 +34,19 @@
         }
         .form-input::placeholder { color: #555; }
         .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+        #serverError {
+            display: none;
+            background: rgba(232,70,10,0.1);
+            border: 1px solid rgba(232,70,10,0.3);
+            color: #FF6B35;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen font-sans">
 
-    <!-- Orbs -->
     <div class="orb" style="width:350px;height:350px;background:rgba(232,70,10,0.1);top:-60px;right:-60px;z-index:0;"></div>
     <div class="orb" style="width:250px;height:250px;background:rgba(232,70,10,0.07);bottom:-40px;left:-40px;z-index:0;"></div>
 
@@ -60,7 +70,6 @@
         </div>
     </nav>
 
-    <!-- Form -->
     <div class="relative z-10 flex items-center justify-center min-h-[calc(100vh-64px)] py-12 px-4">
         <div class="auth-card w-full max-w-md p-8 animate-fade-in-up">
 
@@ -73,6 +82,9 @@
                 <h2 class="text-2xl font-bold mb-1" style="font-family:'Syne',sans-serif;color:#F5F0E8;">Welcome Back</h2>
                 <p class="text-sm" style="color:#888580;">Sign in to continue your learning journey</p>
             </div>
+
+            <!-- Server error banner -->
+            <div id="serverError" class="mb-4"></div>
 
             <form id="loginForm" class="space-y-5">
                 <div>
@@ -88,13 +100,13 @@
 
                 <div class="flex items-center justify-between pt-1">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input id="remember-me" type="checkbox" class="rounded" style="accent-color:#E8460A;">
+                        <input id="remember-me" type="checkbox" style="accent-color:#E8460A;">
                         <span class="text-sm" style="color:#888580;">Remember me</span>
                     </label>
                     <a href="#" class="text-sm font-medium" style="color:#E8460A;">Forgot password?</a>
                 </div>
 
-                <button type="submit" class="gradient-button w-full py-3 rounded-xl text-white font-semibold text-sm mt-2">
+                <button type="submit" id="submitBtn" class="gradient-button w-full py-3 rounded-xl text-white font-semibold text-sm mt-2">
                     Sign in →
                 </button>
             </form>
@@ -109,31 +121,74 @@
     </div>
 
     <script>
+        // Redirect if already logged in
+        if (Auth.getToken()) window.location.href = 'discover.html';
+
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = document.getElementById('email-address').value;
+
+            const email    = document.getElementById('email-address').value.trim();
             const password = document.getElementById('password').value;
-            let isValid = true;
+            const btn      = document.getElementById('submitBtn');
+            const errBanner = document.getElementById('serverError');
+            let valid = true;
+
+            errBanner.style.display = 'none';
 
             if (!email || !/\S+@\S+\.\S+/.test(email)) {
-                document.getElementById('email-error').textContent = !email ? "Email is required" : "Email is invalid";
+                document.getElementById('email-error').textContent = !email ? 'Email is required' : 'Email is invalid';
                 document.getElementById('email-error').classList.remove('hidden');
-                isValid = false;
+                valid = false;
             } else { document.getElementById('email-error').classList.add('hidden'); }
 
             if (!password) {
-                document.getElementById('password-error').textContent = "Password is required";
+                document.getElementById('password-error').textContent = 'Password is required';
                 document.getElementById('password-error').classList.remove('hidden');
-                isValid = false;
+                valid = false;
             } else { document.getElementById('password-error').classList.add('hidden'); }
 
-            if (isValid) {
+            if (!valid) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Signing in…';
+
+            try {
+                const res  = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errBanner.textContent = data.error || 'Login failed';
+                    errBanner.style.display = 'block';
+                    return;
+                }
+
+                // Persist token + user
+                Auth.save(data.token, data.user);
+
+                // Generate E2E keys if not already done (first device login)
                 try {
-                    const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email,password}) });
-                    const data = await res.json();
-                    if (res.ok) { alert(`Welcome back, ${data.user.name}!`); window.location.href = 'index.html'; }
-                    else alert(data.error || 'Login failed');
-                } catch { alert('An error occurred. Please try again.'); }
+                    const kp  = await SkillSwapCrypto.getOrCreateKeyPair();
+                    const jwk = await SkillSwapCrypto.exportPublicKey(kp);
+                    await Auth.apiFetch('/api/users/me/public-key', {
+                        method: 'POST',
+                        body: JSON.stringify({ publicKey: jwk }),
+                    });
+                } catch (cryptoErr) {
+                    console.warn('Crypto init failed (non-fatal):', cryptoErr);
+                }
+
+                window.location.href = 'discover.html';
+
+            } catch (err) {
+                errBanner.textContent = 'Network error. Is the backend running?';
+                errBanner.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign in →';
             }
         });
     </script>
