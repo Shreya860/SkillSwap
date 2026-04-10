@@ -114,9 +114,18 @@
                         </div>
                     </div>
                     <div class="flex gap-3 pb-1">
-                        <button class="gradient-button px-5 py-2 rounded-xl text-white text-sm font-semibold">Request Swap</button>
-                        <button class="gradient-button-outline px-5 py-2 rounded-xl text-sm font-semibold">Message</button>
-                    </div>
+    <!-- This button opens chat with the currently viewed user -->
+    <button
+        class="gradient-button px-5 py-2 rounded-xl text-white text-sm font-semibold"
+        onclick="window.location.href='chat.html?user=' + new URLSearchParams(window.location.search).get('id')"
+    >
+        Message
+    </button>
+    <button class="gradient-button-outline px-5 py-2 rounded-xl text-sm font-semibold"
+        onclick="alert('Swap request sent!')">
+        Request Swap
+    </button>
+</div>
                 </div>
             </div>
 
